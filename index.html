@@ -16,20 +16,25 @@
     justify-content: center;
     align-items: center;
   }
+
   img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* l’image remplit l’écran sans bande noire */
-    animation: reveal 1s ease-in-out;
+    object-fit: cover;
+    opacity: 0;
+    filter: blur(20px) brightness(0.8);
+    transition: opacity 3s ease, filter 4s ease;
   }
-  @keyframes reveal {
-    0% { filter: blur(12px); opacity: 0; }
-    100% { filter: blur(0); opacity: 1; }
+
+  img.apparait {
+    opacity: 1;
+    filter: blur(0) brightness(1);
   }
 </style>
 </head>
 <body>
   <img id="rappelImage" src="" alt="Rappel du jour">
+
   <script>
     // 🔗 Lien vers ta feuille Google Sheet publiée en CSV
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwwNUVfKFGITgh8RQmsmnm1FbcQpc3tbRMeRjQTGyxMimcbY7UsHb_KqpZxAiRJKvNn3g1YaJYb-yq/pub?gid=0&single=true&output=csv";
@@ -42,8 +47,17 @@
         const debutAnnee = new Date(aujourdHui.getFullYear(), 0, 0);
         const diff = aujourdHui - debutAnnee;
         const jourAnnee = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const lienImage = lignes[jourAnnee]?.[1]?.trim(); // colonne B = images
-        if (lienImage) document.getElementById("rappelImage").src = lienImage;
+        const lienImage = lignes[jourAnnee]?.[1]?.trim();
+
+        if (lienImage) {
+          const image = document.getElementById("rappelImage");
+          image.src = lienImage;
+
+          // Quand l'image est chargée → effet de fondu flou
+          image.onload = () => {
+            image.classList.add("apparait");
+          };
+        }
       })
       .catch(err => console.error(err));
   </script>
