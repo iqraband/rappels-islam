@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rappel du jour</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* l’image remplit l’écran sans bande noire */
+    animation: reveal 1s ease-in-out;
+  }
+  @keyframes reveal {
+    0% { filter: blur(12px); opacity: 0; }
+    100% { filter: blur(0); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <img id="rappelImage" src="" alt="Rappel du jour">
+  <script>
+    // 🔗 Lien vers ta feuille Google Sheet publiée en CSV
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwwNUVfKFGITgh8RQmsmnm1FbcQpc3tbRMeRjQTGyxMimcbY7UsHb_KqpZxAiRJKvNn3g1YaJYb-yq/pub?gid=0&single=true&output=csv";
+    
+    fetch(sheetURL)
+      .then(res => res.text())
+      .then(text => {
+        const lignes = text.split("\n").map(l => l.split(","));
+        const aujourdHui = new Date();
+        const debutAnnee = new Date(aujourdHui.getFullYear(), 0, 0);
+        const diff = aujourdHui - debutAnnee;
+        const jourAnnee = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const lienImage = lignes[jourAnnee]?.[1]?.trim(); // colonne B = images
+        if (lienImage) document.getElementById("rappelImage").src = lienImage;
+      })
+      .catch(err => console.error(err));
+  </script>
+</body>
+</html>
